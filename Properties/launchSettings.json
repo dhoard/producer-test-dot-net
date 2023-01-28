@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ProducerTest": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\Doug Hoard\\Projects\\ProducerTest\\ProducerTest\\test.properties"
+    }
+  }
+}
