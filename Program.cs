@@ -40,8 +40,8 @@ namespace com.github.dhoard.kafka
 
             IDictionary<String, String> properties;
             int batchSize;
-            int messageSize;
-            int messageCount;
+            int recordSize;
+            int recordCount;
             string topic;
             Timer timer;
             RandomStringGenerator randomStringGenerator;
@@ -51,15 +51,14 @@ namespace com.github.dhoard.kafka
                 properties = PropertiesLoader.Load(textReader);
             }
 
-            batchSize = Int32.Parse(properties["batch.size"]);
-            messageSize = Int32.Parse(properties["message.size"]);
-            messageCount = Int32.Parse(properties["message.count"]);
             topic = properties["topic"];
+            recordSize = Int32.Parse(properties["record.size"]);
+            recordCount = Int32.Parse(properties["record.count"]);
+            batchSize = Int32.Parse(properties["batch.size"]);
 
-            properties.Remove("batch.size");
-            properties.Remove("message.size");
-            properties.Remove("message.count");
             properties.Remove("topic");
+            properties.Remove("record.size");
+            properties.Remove("record.count");
             properties.Remove("key.serializer");
             properties.Remove("value.serializer");
 
@@ -75,11 +74,11 @@ namespace com.github.dhoard.kafka
 
             using (var producer = new ProducerBuilder<string, byte[]>(clientConfig).Build())
             {
-                for (int i = 0; i < messageCount; i++)
+                for (int i = 0; i < recordCount; i++)
                 {
                     try
                     {
-                        byte[] value = Encoding.ASCII.GetBytes(randomStringGenerator.Generate(messageSize));
+                        byte[] value = Encoding.ASCII.GetBytes(randomStringGenerator.Generate(recordSize));
                         timer.Start();
                         var deliveryReport = await producer.ProduceAsync(topic, new Message<string, byte[]> { Key = null, Value = value });
                     }
@@ -94,26 +93,27 @@ namespace com.github.dhoard.kafka
                 }
             }
 
-            Console.WriteLine("batch size    : " + batchSize);
-            Console.WriteLine("message size  : " + messageSize);
-            Console.WriteLine("message count : " + messageCount);
-            Console.WriteLine("time          : " + timer.GetTime() + " ms");
-            Console.WriteLine("min           : " + timer.GetMin() + " ms");
-            Console.WriteLine("max           : " + timer.GetMax() + " ms");
-            Console.WriteLine("median        : " + timer.GetMedian() + " ms");
-            Console.WriteLine("mean          : " + timer.GetMean() + " ms");
-            Console.WriteLine("99th %-tile   : " + timer.GetPercentile(99) + " ms");
-            Console.WriteLine("95th %-tile   : " + timer.GetPercentile(95) + " ms");
-            Console.WriteLine("90th %-tile   : " + timer.GetPercentile(90) + " ms");
-            Console.WriteLine("80th %-tile   : " + timer.GetPercentile(80) + " ms");
-            Console.WriteLine("70th %-tile   : " + timer.GetPercentile(70) + " ms");
-            Console.WriteLine("60th %-tile   : " + timer.GetPercentile(60) + " ms");
-            Console.WriteLine("50th %-tile   : " + timer.GetPercentile(50) + " ms");
-            Console.WriteLine("40th %-tile   : " + timer.GetPercentile(40) + " ms");
-            Console.WriteLine("30th %-tile   : " + timer.GetPercentile(30) + " ms");
-            Console.WriteLine("20th %-tile   : " + timer.GetPercentile(20) + " ms");
-            Console.WriteLine("10th %-tile   : " + timer.GetPercentile(10) + " ms");
-            Console.WriteLine("rate          : " + ((double) messageCount) / (timer.GetTime() / 1000.0d) + " messages per second");
+            Console.WriteLine("topic        : " + topic);
+            Console.WriteLine("record size  : " + recordSize + " bytes");
+            Console.WriteLine("record count : " + recordCount);
+            Console.WriteLine("batch size   : " + batchSize);
+            Console.WriteLine("time         : " + timer.GetTime() + " ms");
+            Console.WriteLine("min          : " + timer.GetMin() + " ms");
+            Console.WriteLine("max          : " + timer.GetMax() + " ms");
+            Console.WriteLine("median       : " + timer.GetMedian() + " ms");
+            Console.WriteLine("mean         : " + timer.GetMean() + " ms");
+            Console.WriteLine("99th %-tile  : " + timer.GetPercentile(99) + " ms");
+            Console.WriteLine("95th %-tile  : " + timer.GetPercentile(95) + " ms");
+            Console.WriteLine("90th %-tile  : " + timer.GetPercentile(90) + " ms");
+            Console.WriteLine("80th %-tile  : " + timer.GetPercentile(80) + " ms");
+            Console.WriteLine("70th %-tile  : " + timer.GetPercentile(70) + " ms");
+            Console.WriteLine("60th %-tile  : " + timer.GetPercentile(60) + " ms");
+            Console.WriteLine("50th %-tile  : " + timer.GetPercentile(50) + " ms");
+            Console.WriteLine("40th %-tile  : " + timer.GetPercentile(40) + " ms");
+            Console.WriteLine("30th %-tile  : " + timer.GetPercentile(30) + " ms");
+            Console.WriteLine("20th %-tile  : " + timer.GetPercentile(20) + " ms");
+            Console.WriteLine("10th %-tile  : " + timer.GetPercentile(10) + " ms");
+            Console.WriteLine("rate         : " + ((double) recordCount) / (timer.GetTime() / 1000.0d) + " records per second");
         }
     }
 }
